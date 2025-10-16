@@ -1,0 +1,22 @@
+﻿
+# ignore the settings folder and files for VSCode and PSS
+.vscode/*
+*.psproj
+*TempPoint*
+
+# Ignore staging info from Visual Studio
+library/MailForge/.vs/*
+library/MailForge/MailForge/bin/*
+library/MailForge/MailForge/obj/*
+
+# ignore PowerShell Studio MetaData
+MailForge/MailForge.psproj
+MailForge/MailForge.psproj.bak
+MailForge/MailForge.psprojs
+MailForge/MailForge.psproj
+
+# ignore the TestResults
+TestResults/*
+
+# ignore the publishing Directory
+publish/*

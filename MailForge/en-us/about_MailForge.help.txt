@@ -1,0 +1,11 @@
+﻿TOPIC
+	about_MailForge
+	
+SHORT DESCRIPTION
+	Explains how to use the MailForge powershell module
+	
+LONG DESCRIPTION
+	<Insert Content here>
+
+KEYWORDS
+	MailForge

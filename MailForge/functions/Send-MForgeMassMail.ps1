@@ -158,5 +158,4 @@
         Write-PSFMessage "Removing temporary template $templateName"
         Remove-PSMDTemplate -TemplateName $TemplateName -Confirm:$false -ErrorAction SilentlyContinue
     }
-    Save-ContextCache -Name "Send-MForgeMassMail" -CurrentVariables (get-variable -Scope Local)
 }

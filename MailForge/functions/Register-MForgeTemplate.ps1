@@ -38,12 +38,14 @@
     )
     $fileObj=Get-Item -Path $TemplateFile
     $extension=$fileObj.Extension.ToUpper() -replace '\.'
+    $tags=@($extension)
     if ($PSCmdlet.ParameterSetName -eq 'Temporary') {
         $TemplateName = "MForgeTempTemplate_$([Guid]::NewGuid().ToString())"
+        $tags+= "TemporaryMForgeTemplate"
         Write-PSFMessage "Registering temporary template $TemplateName from file $TemplateFile"
-        New-PSMDTemplate -TemplateName $TemplateName -Outstore $OutStore -FilePath $TemplateFile -Version $Version -Force -Tags $extension
+        New-PSMDTemplate -TemplateName $TemplateName -Outstore $OutStore -FilePath $TemplateFile -Version $Version -Force -Tags $tags
         return $TemplateName
     } else {
-        New-PSMDTemplate -TemplateName $TemplateName -Outstore $OutStore -FilePath $TemplateFile -Version $Version -Force -Tags $extension
+        New-PSMDTemplate -TemplateName $TemplateName -Outstore $OutStore -FilePath $TemplateFile -Version $Version -Force -Tags $tags
     }
 }

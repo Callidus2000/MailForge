@@ -26,9 +26,10 @@
 	# Modules that must be imported into the global environment prior to importing
 	# this module
 	RequiredModules = @(
+		@{ ModuleName='ImportExcel'; ModuleVersion='7.8.10' }
 		@{ ModuleName='PSFramework'; ModuleVersion='1.13.414' }
 		@{ ModuleName = 'PSModuleDevelopment'; ModuleVersion = '2.2.13.176' }
-		@{ ModuleName = 'Send-MailKitMessage'; ModuleVersion = '3.1.0' }
+		@{ ModuleName = 'Send-MailKitMessage'; ModuleVersion = '3.2.0' }
 	)
 
 	# Assemblies that must be loaded prior to importing this module
@@ -45,7 +46,9 @@
 		'Initialize-MForgeMailDefault'
 		'Get-MForgeMailDefault'
 		'Register-MForgeTemplate'
+		'Remove-MForgeTemplateOrphan'
 		'Send-MForgeMail'
+		'Send-MForgeMassMail'
 	)
 
 	# Cmdlets to export from this module

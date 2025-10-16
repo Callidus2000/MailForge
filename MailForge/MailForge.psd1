@@ -44,6 +44,8 @@
 	FunctionsToExport = @(
 		'Initialize-MForgeMailDefault'
 		'Get-MForgeMailDefault'
+		'Register-MForgeTemplate'
+		'Send-MForgeMail'
 	)
 
 	# Cmdlets to export from this module

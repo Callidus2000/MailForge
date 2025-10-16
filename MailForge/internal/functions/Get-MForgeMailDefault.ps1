@@ -29,7 +29,8 @@
         'RecipientList',
         'CCList',
         'BCCList',
-        'UseSecureConnectionIfAvailable'
+        'UseSecureConnectionIfAvailable',
+        'Subject'
     )
     $result = @{}
     $overRideParams = $CurrentPSBoundParameters | ConvertTo-PSFHashtable -Include $configurableParams
@@ -39,12 +40,15 @@
             $result[$param] = $default
         }
     }
+    Write-PSFMessage "Defaults from Config: $($result | ConvertTo-Json -Compress)"
     if ($overRideParams) {
+        Write-PSFMessage "Override Params from Call: $($overRideParams | ConvertTo-Json -Compress)"
         foreach ($param in $configurableParams) {
             if ($overRideParams.ContainsKey($param)) {
                 $result[$param] = $overRideParams[$param]
             }
         }
     }
+    Write-PSFMessage "Final Mail Params: $($result | ConvertTo-Json -Compress)"
     return $result
 }

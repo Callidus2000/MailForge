@@ -1,0 +1,1 @@
+﻿The code of the project is PowerShell. English is used for documentation and comments. Accessing values in a hashtable is done using the dot operator (e.g., $hash.key). The PowerShell modules PSFramework and Send-MailKitMessage are available.

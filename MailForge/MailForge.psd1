@@ -18,7 +18,7 @@
 	Copyright = 'Copyright (c) 2025 Sascha Spiekermann'
 
 	# Description of the functionality provided by this module
-	Description = 'Mail Template Helper'
+	Description = 'MailForge is a PowerShell module for automated email delivery, template management, and mass mailing. It supports dynamic templates with placeholders, Excel-based recipient lists, and integrates with modern SMTP systems for secure, scalable communication.'
 
 	# Minimum version of the Windows PowerShell engine required by this module
 	PowerShellVersion = '5.0'
@@ -73,19 +73,19 @@
 		PSData = @{
 
 			# Tags applied to this module. These help with module discovery in online galleries.
-			# Tags = @()
+			Tags = @('mail','email','template','automation','powershell','smtp','massmail','psframework')
 
 			# A URL to the license for this module.
-			# LicenseUri = ''
+			LicenseUri = 'https://github.com/Callidus2000/MailForge/blob/master/LICENSE'
 
 			# A URL to the main website for this project.
-			# ProjectUri = ''
+			ProjectUri = 'https://github.com/Callidus2000/MailForge'
 
 			# A URL to an icon representing this module.
 			# IconUri = ''
 
 			# ReleaseNotes of this module
-			# ReleaseNotes = ''
+			ReleaseNotes = 'Initial release: MailForge provides PowerShell cmdlets for email automation, template management, and mass mailing with Excel integration.'
 
 		} # End of PSData hashtable
 

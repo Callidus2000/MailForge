@@ -52,11 +52,11 @@
     .PARAMETER WorksheetName
     Name of the Excel worksheet.
 
-    .PARAMETER MailToColumn
-    Column name for the recipient address. Used if RecipientList is not set.
+    .PARAMETER MailToAttr
+    Column name for the recipient address. Used if RecipientList is not set. Default: 'MailTo'.
 
-    .PARAMETER SubjectColumn
-    Column name for the subject. Used if Subject is not set.
+    .PARAMETER SubjectAttr
+    Column name for the subject. Used if Subject is not set. Default: 'Subject'.
 
     .PARAMETER Limit
     Maximum number of emails to send (e.g., for testing).
@@ -73,8 +73,11 @@
     Send-MForgeMassMail -TemplateFile "template.html" -DataFile "data.xlsx" -WorksheetName "Sheet1" -MailToColumn "Email" -SubjectColumn "Subject" -Limit 10 -Filter { $_.Status -eq 'Active' }
 
     Sends up to 10 emails to all active recipients, with subject and recipient taken from the respective columns in the Excel file. All columns are available as placeholders in the template.
+
+    .NOTES
+    If -WhatIf is specified, the mail information (recipient, subject, content) will be displayed on the console, but no mails will be sent.
     #>
-    [CmdletBinding(SupportsShouldProcess = $true)]
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
     param (
         # Optional parameters from Initialize-MForgeMail
         [pscredential]$Credential,
@@ -87,75 +90,114 @@
         [boolean]$UseSecureConnectionIfAvailable,
         [string]$Subject,
 
-        # Mandatory parameters
-        # ParameterSet ByName
-        [Parameter(Mandatory = $true, ParameterSetName = 'ByName')]
+        # Template selection
+        # [Parameter(Mandatory = $true, ParameterSetName = 'ByName')]
         [string]$TemplateName,
-
-        # ParameterSet ByFile
-        [Parameter(Mandatory = $true, ParameterSetName = 'ByFile')]
+        # [Parameter(Mandatory = $true, ParameterSetName = 'ByFile')]
         [string]$TemplateFile,
 
-        [Parameter(Mandatory = $true)]
+        # Data input from Excel
+        [Parameter(ParameterSetName = 'dataFromExcel', Mandatory = $true)]
         [PsfFile]$DataFile,
-        [scriptblock]$Filter = { $true },
-        [Parameter(Mandatory = $true)]
+        [Parameter(ParameterSetName = 'dataFromExcel', Mandatory = $true)]
         [string]$WorksheetName,
-        [string]$MailToColumn,
-        [string]$SubjectColumn,
+
+        # Data input from pipeline
+        [Parameter(ParameterSetName = 'dataFromPipeline', ValueFromPipeline = $true)]
+        [object[]]$InputData,
+
+        # Common parameters
+        [scriptblock]$Filter = { $true },
+        [string]$MailToAttr = 'MailTo',
+        [string]$SubjectAttr = 'Subject',
         [int]$Limit = 0,
         [string]$MailToOverride
     )
-    $singleMailParams = $PSBoundParameters | ConvertTo-PSFHashtable -ReferenceCommand "Send-MForgeMail" -Exclude TemplateFile
-    Write-PSFMessage "Single Mail Params: $($singleMailParams|ConvertTo-Json -Compress)"
-    if ($PSCmdlet.ParameterSetName -eq 'ByFile') {
-        $templateName = Register-MForgeTemplate -TemplateFile $TemplateFile -Temporary
-        $singleMailParams.TemplateName = $templateName
+    begin {
+        # Write-PSFMessage "`$PSCmdlet=$($PSCmdlet|convertto-json)"
+        # Write-PSFMessage "`$WhatIfPreference=$($WhatIfPreference)"
+        Write-PSFMessage "`$ConfirmPreference=$($ConfirmPreference)"
+        # if ($PSCmdlet.ShouldProcess('','', 'WhatIf')) {
+        if ($WhatIfPreference) {
+            # WhatIf was specified, do nothing here
+        }
+        $singleMailParams = $PSBoundParameters | ConvertTo-PSFHashtable -ReferenceCommand "Send-MForgeMail" -Exclude TemplateFile
+        Write-PSFMessage "Single Mail Params: $($singleMailParams|ConvertTo-Json -Compress)"
+        if ($PSBoundParameters.ContainsKey('TemplateFile')) {
+            $templateName = Register-MForgeTemplate -TemplateFile $TemplateFile -Temporary
+            $singleMailParams.TemplateName = $templateName
+        }
+        $rawData = @()
+        if ($PSBoundParameters.ContainsKey('DataFile') -and $PSBoundParameters.ContainsKey('WorksheetName')) {
+            $rawData = Import-Excel -Path $DataFile -WorksheetName $WorksheetName
+        }
+        elseif ($PSBoundParameters.ContainsKey('InputData')) {
+            $rawData = @()
+        }
+        $SelectParam = @{}
+        if ($Limit -gt 0) {
+            $SelectParam.First = $Limit
+        }
     }
-    $rawData = Import-Excel -Path $DataFile -WorksheetName $WorksheetName
-    $SelectParam = @{}
-    if ($Limit -gt 0) {
-        $SelectParam.First = $Limit
+    process {
+        $rawData += $InputData
     }
-    $TemplateData = $rawData | Select-Object @SelectParam | where-object $Filter
-    Write-PSFMessage "File $DataFile imported, $($TemplateData.Count) entries after filtering original $($rawData.Count)"
-    $uniqueRecipients = ($TemplateData | Select-Object -ExpandProperty $MailToColumn -ErrorAction SilentlyContinue | Measure-Object).count
-    if ($RecipientList) {
-        Write-PSFMessage -Level Host -Message "RecipientList parameter is set, ignoring MailToColumn and sending $($TemplateData.Count) mails to $($RecipientList.Count) recipients"
-        $ConfirmMessage = "Sending $($TemplateData.Count) mails to $($RecipientList.Count) recipients"
-        $MailToOverride = $RecipientList
-    }
-    else {
-        $ConfirmMessage = "Sending $($TemplateData.Count) mails to $uniqueRecipients unique recipients from column $MailToColumn"
-    }
-    Invoke-PSFProtectedCommand -Action $ConfirmMessage -ScriptBlock {
+    end {
+        $TemplateData = $rawData | Where-Object $Filter | Select-Object @SelectParam
+        Write-PSFMessage "Data imported, $($TemplateData.Count) entries after filtering original $($rawData.Count)"
+        $uniqueRecipients = ($TemplateData | Select-Object -ExpandProperty $MailToAttr -ErrorAction SilentlyContinue | Measure-Object).count
+        if ($RecipientList) {
+            Write-PSFMessage -Level Host -Message "RecipientList parameter is set, ignoring MailToAttr and sending $($TemplateData.Count) mails to $($RecipientList.Count) recipients"
+            $ConfirmMessage = "Sending $($TemplateData.Count) mails to $($RecipientList.Count) recipients"
+            $MailToOverride = $RecipientList
+        }
+        else {
+            $ConfirmMessage = "Sending $($TemplateData.Count) mails to $uniqueRecipients unique recipients from column $MailToAttr"
+        }
         if ([string]::IsNullOrEmpty($TemplateData)) {
-            Stop-PSFFunction -Level Warning -Message "No data found in Excel" -EnableException $true
+            Stop-PSFFunction -Level Warning -Message "No data found" -EnableException $true
         }
-        if ($SubjectColumn -and -not $TemplateData[0].$SubjectColumn) {
-            Stop-PSFFunction -Level Warning -Message "SubjectColumn '$SubjectColumn' not found in data, please check your input." -EnableException $true
+        if (-not $PSBoundParameters.ContainsKey('SubjectAttr') -and $SubjectAttr -and -not $TemplateData[0].$SubjectAttr) {
+            Stop-PSFFunction -Level Warning -Message "SubjectAttr '$SubjectAttr' not found in data, please check your input." -EnableException $true
         }
-        if ($MailToColumn -and -not $TemplateData[0].$MailToColumn) {
-            Stop-PSFFunction -Level Warning -Message "MailToColumn '$MailToColumn' not found in data, please check your input." -EnableException $true
+        if (-not $PSBoundParameters.ContainsKey('MailToAttr') -and $MailToAttr -and -not $TemplateData[0].$MailToAttr) {
+            Stop-PSFFunction -Level Warning -Message "MailToAttr '$MailToAttr' not found in data, please check your input." -EnableException $true
         }
         if ($MailToOverride) {
             $singleMailParams.RecipientList = $MailToOverride
         }
         $TemplateData = $TemplateData | ConvertTo-PSFHashtable
-        foreach ($entry in $TemplateData) {
-            if (-not $MailToOverride) {
-                $singleMailParams.RecipientList = $entry.$MailToColumn
-            }
-            if ($SubjectColumn -and $entry.PSObject.Properties.Name -contains $SubjectColumn) {
-                $singleMailParams.Subject = $entry.$SubjectColumn
-            }
-            Write-PSFMessage "Sending mail to $($singleMailParams.RecipientList) with subject '$($singleMailParams.Subject)'"
-            Write-PSFMessage "Mail Parameters: $($singleMailParams | ConvertTo-Json -Compress)"
-            Send-MForgeMail @singleMailParams -templateParameters $entry
+        Save-ContextCache -Name "Send-MForgeMassMail" -CurrentVariables (Get-Variable -Scope Local)
+        $mailData = $TemplateData | ForEach-Object {
+            $param = $singleMailParams.Clone()
+                if (-not $MailToOverride) {
+                    $param.RecipientList = $_.$MailToAttr
+                }
+                # Subject from parameter overrides data, otherwise use data
+                if ($PSBoundParameters.ContainsKey('Subject')) {
+                    $param.Subject = $Subject
+                } elseif ($_.ContainsKey($SubjectAttr)) {
+                    $param.Subject = $_.$SubjectAttr
+                } else {
+                    $param.Subject = $null
+                }
+            $param.templateParameters = $_
+            $param
         }
-    }
-    if ($PSCmdlet.ParameterSetName -eq 'ByFile') {
-        Write-PSFMessage "Removing temporary template $templateName"
-        Remove-PSMDTemplate -TemplateName $TemplateName -Confirm:$false -ErrorAction SilentlyContinue
+        # if($WhatIfPreference) {
+        #     Write-PSFMessage "WhatIf is set, no mails will be sent. The following mails would be sent:"
+        #     Write-PSFMessage -Level Host -Message "$($mailData|Select-Object| ConvertTo-Json -Compress)"
+        # }
+        Invoke-PSFProtectedCommand -Action $ConfirmMessage -ScriptBlock {
+            foreach ($mailParam in $mailData) {
+                Write-PSFMessage "Sending mail to $($mailParam.RecipientList) with subject '$($mailParam.Subject)'" -FunctionName Send-MForgeMassMail
+                Write-PSFMessage "Mail Parameters: $($mailParam | ConvertTo-Json -Compress)" -FunctionName Send-MForgeMassMail
+                Send-MForgeMail @mailParam -WhatIf:$WhatIfPreference
+            }
+        } -WhatIf:$false -Confirm:$ConfirmPreference
+        if ($PSBoundParameters.ContainsKey('TemplateFile')) {
+            Write-PSFMessage "Removing temporary template $templateName"
+            Remove-PSMDTemplate -TemplateName $TemplateName -Confirm:$false -ErrorAction SilentlyContinue
+        }
     }
 }

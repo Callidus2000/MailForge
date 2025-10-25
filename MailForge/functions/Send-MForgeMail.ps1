@@ -52,8 +52,11 @@
     Send-MForgeMail -TemplateName 'MyTemplate' -TemplateParameters $params
 
     Sends an email using the template 'MyTemplate' and the provided parameters.
+
+    .NOTES
+    If -WhatIf is specified, the mail information (recipient, subject, content) will be displayed on the console, but no mails will be sent.
     #>
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
     param (
         # Optional parameters from Initialize-MForgeMailDefault
         [pscredential]$Credential,
@@ -78,12 +81,14 @@
         [Parameter(Mandatory = $true, ParameterSetName = 'ByFile')]
         [string]$TemplateFile
     )
+    Write-PSFMessage "`$WhatIfPreference=$($WhatIfPreference)"
+
     $sendMailParams = Get-MForgeMailDefault -CurrentPSBoundParameters $PSBoundParameters
     if ($PSCmdlet.ParameterSetName -eq 'ByFile') {
-         $templateName=Register-MForgeTemplate -TemplateFile $TemplateFile -Temporary
+        $templateName = Register-MForgeTemplate -TemplateFile $TemplateFile -Temporary
     }
     $template = Get-PSMDTemplate $TemplateName
-    if(-not $template){
+    if (-not $template) {
         Stop-PSFFunction -Level Warning -Message "Template $TemplateName not found"
         return
     }
@@ -101,8 +106,19 @@
         }
     }
     Write-PSFMessage "SendMail-Params: $($sendMailParams | ConvertTo-Json -Compress)"
-    Invoke-PSFProtectedCommand -Action "Sending Mail to $($sendMailParams.RecipientList)" -ScriptBlock {
-        Send-MailKitMessage @sendMailParams
+    if ($WhatIfPreference) {
+        Write-PSFMessage "WhatIf is set, no mails will be sent. The following mails would be sent:"
+        # Write-PSFMessage -Level Host -Message "$($sendMailParams|Select-Object -Property RecipientList,Subject,HtmlBody | ConvertTo-Json)"
+        Write-PSFMessage -Level Host -Message @"
+RecipientList=$($sendMailParams.RecipientList)
+Subject=$($sendMailParams.Subject)
+HtmlBody=$($sendMailParams.HtmlBody)
+"@
+    }
+    else {
+        Invoke-PSFProtectedCommand -Action "Sending Mail to $($sendMailParams.RecipientList)" -ScriptBlock {
+            Send-MailKitMessage @sendMailParams
+        }
     }
     if ($PSCmdlet.ParameterSetName -eq 'ByFile') {
         Remove-PSMDTemplate -TemplateName $TemplateName -Confirm:$false -ErrorAction SilentlyContinue

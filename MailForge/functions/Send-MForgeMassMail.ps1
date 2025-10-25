@@ -167,27 +167,24 @@
             $singleMailParams.RecipientList = $MailToOverride
         }
         $TemplateData = $TemplateData | ConvertTo-PSFHashtable
-        Save-ContextCache -Name "Send-MForgeMassMail" -CurrentVariables (Get-Variable -Scope Local)
         $mailData = $TemplateData | ForEach-Object {
             $param = $singleMailParams.Clone()
-                if (-not $MailToOverride) {
-                    $param.RecipientList = $_.$MailToAttr
-                }
-                # Subject from parameter overrides data, otherwise use data
-                if ($PSBoundParameters.ContainsKey('Subject')) {
-                    $param.Subject = $Subject
-                } elseif ($_.ContainsKey($SubjectAttr)) {
-                    $param.Subject = $_.$SubjectAttr
-                } else {
-                    $param.Subject = $null
-                }
+            if (-not $MailToOverride) {
+                $param.RecipientList = $_.$MailToAttr
+            }
+            # Subject from parameter overrides data, otherwise use data
+            if ($PSBoundParameters.ContainsKey('Subject')) {
+                $param.Subject = $Subject
+            }
+            elseif ($_.ContainsKey($SubjectAttr)) {
+                $param.Subject = $_.$SubjectAttr
+            }
+            else {
+                $param.Subject = $null
+            }
             $param.templateParameters = $_
             $param
         }
-        # if($WhatIfPreference) {
-        #     Write-PSFMessage "WhatIf is set, no mails will be sent. The following mails would be sent:"
-        #     Write-PSFMessage -Level Host -Message "$($mailData|Select-Object| ConvertTo-Json -Compress)"
-        # }
         Invoke-PSFProtectedCommand -Action $ConfirmMessage -ScriptBlock {
             foreach ($mailParam in $mailData) {
                 Write-PSFMessage "Sending mail to $($mailParam.RecipientList) with subject '$($mailParam.Subject)'" -FunctionName Send-MForgeMassMail

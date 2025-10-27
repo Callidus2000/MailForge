@@ -1,18 +1,25 @@
 ﻿function Register-MForgeTemplate {
     <#
     .SYNOPSIS
-    Registers a template for MailForge using the specified file and name.
+    Registers a template for MailForge using a file or string, with custom name, type, and store.
 
     .DESCRIPTION
-    This function registers a template for MailForge. The template file and name are mandatory
-    parameters. The template is stored in the specified store with the given version and tagged
-    according to its file extension.
+    This function registers a template for MailForge. You can provide the template as a file
+    or as a string. The template is registered under the specified name, in the chosen store,
+    with the given version. The TemplateType parameter allows tagging the template as String,
+    MD5, or HTML for later identification and processing.
 
     .PARAMETER TemplateFile
-    The path to the template file to be registered.
+    The path to the template file to be registered. Used in file-based parameter sets.
+
+    .PARAMETER TemplateString
+    The template content as a string. Used in string-based parameter sets.
 
     .PARAMETER TemplateName
     The name under which the template will be registered.
+
+    .PARAMETER Temporary
+    If set, registers the template as temporary with a generated name.
 
     .PARAMETER OutStore
     The store in which the template will be saved. Default is 'Default'.
@@ -20,32 +27,69 @@
     .PARAMETER Version
     The version of the template. Default is '1.0.0'.
 
-    .EXAMPLE
-    Register-MForgeTemplate -TemplateFile 'template.ps1' -TemplateName 'MyTemplate'
+    .PARAMETER TemplateType
+    The type of the template (String, MD5, HTML). Used for tagging and identification.
 
-    Registers the template 'template.ps1' as 'MyTemplate' in the default store with version 1.0.0.
+    .EXAMPLE
+    Register-MForgeTemplate -TemplateFile 'template.ps1' -TemplateName 'MyTemplate' -TemplateType 'HTML'
+
+    Registers the template file as 'MyTemplate' in the default store with type 'HTML'.
+
+    .EXAMPLE
+    Register-MForgeTemplate -TemplateString $content -TemplateName 'MyTemplate' -TemplateType 'String'
+
+    Registers the template from string content as 'MyTemplate' in the default store with type 'String'.
     #>
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'ByNameAndFile')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'TemporaryByFile')]
         [PSFFile]$TemplateFile,
-        [Parameter(Mandatory=$true, ParameterSetName='ByName')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'ByNameAndString')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'TemporaryByString')]
+        [string]$TemplateString,
+        [Parameter(Mandatory = $true, ParameterSetName = 'ByNameAndString')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'ByNameAndFile')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'ByName')]
         [string]$TemplateName,
-        [Parameter(Mandatory=$true, ParameterSetName='Temporary')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'TemporaryByString')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'TemporaryByFile')]
         [switch]$Temporary,
         $OutStore = "Default",
-        [string]$Version = "1.0.0"
+        [string]$Version = "1.0.0",
+        [Parameter(Mandatory = $true, ParameterSetName = 'ByNameAndString')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'TemporaryByString')]
+        [ValidateSet("TXT", "HTML", "MD")]
+        [string]$TemplateType = "TXT"
     )
-    $fileObj=Get-Item -Path $TemplateFile
-    $extension=$fileObj.Extension.ToUpper() -replace '\.'
-    $tags=@($extension)
-    if ($PSCmdlet.ParameterSetName -eq 'Temporary') {
+    if ($TemplateString) {
+        $tempFile = [System.IO.Path]::GetTempFileName()
+        Write-PSFMessage "Creating temporary file $tempFile for template string"
+        $TemplateFile = $tempFile
+        Set-Content -Path $tempFile -Value $TemplateString -Encoding UTF8
+    }
+    $fileObj = Get-Item -Path $TemplateFile
+    if ($TemplateString) {
+        $extension = $TemplateType.ToUpper()
+    }
+    else {
+        $extension = $fileObj.Extension.ToUpper() -replace '\.'
+
+    }
+    $tags = @($extension,'MailForge')
+    if ($Temporary) {
         $TemplateName = "MForgeTempTemplate_$([Guid]::NewGuid().ToString())"
-        $tags+= "TemporaryMForgeTemplate"
+        $tags += "TemporaryMForgeTemplate"
         Write-PSFMessage "Registering temporary template $TemplateName from file $TemplateFile"
-        New-PSMDTemplate -TemplateName $TemplateName -Outstore $OutStore -FilePath $TemplateFile -Version $Version -Force -Tags $tags
-        return $TemplateName
-    } else {
-        New-PSMDTemplate -TemplateName $TemplateName -Outstore $OutStore -FilePath $TemplateFile -Version $Version -Force -Tags $tags
+        # New-PSMDTemplate -TemplateName $TemplateName -Outstore $OutStore -FilePath $TemplateFile -Version $Version -Force -Tags $tags
+        # Return the generated template name
+        $TemplateName
+    }
+    # else {
+    New-PSMDTemplate -TemplateName $TemplateName -Outstore $OutStore -FilePath $TemplateFile -Version $Version -Force -Tags $tags
+    # }
+    if ($TemplateString) {
+        Write-PSFMessage "Cleaning up temporary file $tempFile"
+        remove-item -Path $tempFile -ErrorAction SilentlyContinue
     }
 }

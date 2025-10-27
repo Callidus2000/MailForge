@@ -43,10 +43,11 @@
 
 	# Functions to export from this module
 	FunctionsToExport = @(
-		'Initialize-MForgeMailDefault'
 		'Get-MForgeMailDefault'
+		'Initialize-MForgeMailDefault'
+		'Invoke-MForgeTemplate'
 		'Register-MForgeTemplate'
-		'Remove-MForgeTemplateOrphan'
+		'Remove-MForgeTemplate'
 		'Send-MForgeMail'
 		'Send-MForgeMassMail'
 	)

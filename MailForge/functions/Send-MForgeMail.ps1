@@ -79,30 +79,40 @@
 
         # ParameterSet ByFile
         [Parameter(Mandatory = $true, ParameterSetName = 'ByFile')]
-        [string]$TemplateFile
+        [string]$TemplateFile,
+        [Parameter(Mandatory = $true, ParameterSetName = 'ByString')]
+        [string]$TemplateString,
+        [Parameter(Mandatory = $true, ParameterSetName = 'ByString')]
+        [ValidateSet("TXT", "HTML", "MD")]
+        [string]$TemplateType = "TXT"
+
     )
     Write-PSFMessage "`$WhatIfPreference=$($WhatIfPreference)"
 
     $sendMailParams = Get-MForgeMailDefault -CurrentPSBoundParameters $PSBoundParameters
-    if ($PSCmdlet.ParameterSetName -eq 'ByFile') {
-        $templateName = Register-MForgeTemplate -TemplateFile $TemplateFile -Temporary
+    if ($PSCmdlet.ParameterSetName -ne 'ByName') {
+        $registerParam=$PSBoundParameters|convertto-psfhashtable -Include 'TemplateString','TemplateFile','TemplateType'
+        Write-PSFMessage "Registering temporary template with parameters: $($registerParam|ConvertTo-Json -Compress)"
+        # $templateName = Register-MForgeTemplate -TemplateFile $TemplateFile -Temporary
+        $templateName = Register-MForgeTemplate @registerParam -Temporary
     }
     $template = Get-PSMDTemplate $TemplateName
     if (-not $template) {
         Stop-PSFFunction -Level Warning -Message "Template $TemplateName not found"
         return
     }
-    $templateResults = Invoke-PSMDTemplate -TemplateName $TemplateName -Parameters $TemplateParameters -GenerateObjects
+    $templateResults=Invoke-mforgeTemplate -TemplateName $TemplateName -TemplateParameters $TemplateParameters
+    # $templateResults = Invoke-PSMDTemplate -TemplateName $TemplateName -Parameters $TemplateParameters -GenerateObjects -verbose
 
     switch -Regex (($template).Tags | Join-String -Separator ',') {
         'MD' {
             Write-PSFMessage "Konvertiere MarkDown nach HTML"
-            $mdContent = $templateResults | Select-Object -First 1 -ExpandProperty Content
-            $sendMailParams.HtmlBody = ($mdContent | ConvertFrom-Markdown).Html
+            # $mdContent = $templateResults | Select-Object -First 1 -ExpandProperty Content
+            $sendMailParams.HtmlBody = ($templateResults | ConvertFrom-Markdown).Html
         }
         'HTML' {
             Write-PSFMessage "Erzeuge HTML aus dem Template"
-            $sendMailParams.HtmlBody = $templateResults | Select-Object -First 1 -ExpandProperty Content
+            $sendMailParams.HtmlBody = $templateResults # | Select-Object -First 1 -ExpandProperty Content
         }
     }
     Write-PSFMessage "SendMail-Params: $($sendMailParams | ConvertTo-Json -Compress)"

@@ -111,3 +111,85 @@ Send-MForgeMassMail -TemplateFile "template.html" -DataFile "data.xlsx" -Workshe
 ```
 
 Sends up to 10 emails to all active recipients, with subject and recipient taken from the respective columns in the Excel file. All columns are available as placeholders in the template.
+
+### Example: Send AD User Information
+
+This example demonstrates how to send personalized account information to all users in an Active Directory forest. For each user, all their accounts (UPNs) are grouped by domain and sent via email using a Markdown template. The example shows both a template with a loop and a template with a pre-rendered user list.
+
+```powershell
+# Get all domains in the forest, real Data
+# $forest = Get-ADForest
+# $domains = $forest.Domains
+
+# $allUsers = foreach ($domain in $domains) {
+#     Get-ADUser -Server $domain -Filter "mail -like '*'" -Properties givenName,surname,mail,userPrincipalName |
+#         Select-Object @{Name='Domain';Expression={$domain}},
+#                       @{Name='FirstName';Expression={$_.givenName}},
+#                       @{Name='LastName';Expression={$_.surname}},
+#                       @{Name='Mail';Expression={$_.mail}},
+#                       @{Name='UPN';Expression={$_.userPrincipalName}}
+# }
+
+# Group by mail address and create array with required structure
+# $userArray = $allUsers | Group-Object -Property Mail | ForEach-Object {
+#     $firstUser = $_.Group | Select-Object -First 1
+#     [PSCustomObject]@{
+#         Mail      = $_.Name
+#         FirstName = $firstUser.FirstName
+#         LastName  = $firstUser.LastName
+#         UserList  = $_.Group
+#     }
+# }
+
+# Provide sample data for testing
+$userArray=@"
+[{"Mail":"user1@example.com","FirstName":"User1","LastName":"Lastname1","UserList":[{"Domain":"example.com","FirstName":"User1","LastName":"Lastname1","Mail":"user1@example.com","UPN":"user1@example.com"},{"Domain":"sales.example.com","FirstName":"User1","LastName":"Lastname1","Mail":"user1@example.com","UPN":"user1@sales.example.com"}]},{"Mail":"user2@example.com","FirstName":"User2","LastName":"Lastname2","UserList":[{"Domain":"example.com","FirstName":"User2","LastName":"Lastname2","Mail":"user2@example.com","UPN":"user2@example.com"},{"Domain":"sales.example.com","FirstName":"User2","LastName":"Lastname2","Mail":"user2@example.com","UPN":"user2@sales.example.com"}]},{"Mail":"user3@example.com","FirstName":"User3","LastName":"Lastname3","UserList":[{"Domain":"sales.example.com","FirstName":"User3","LastName":"Lastname3","Mail":"user3@example.com","UPN":"user3@sales.example.com"}]}]
+"@ |ConvertFrom-Json
+
+# Send mail using template with loop
+$userArray | Send-MForgeMassMail -TemplateFile .\UserMailTemplate-WithLoop.md -Subject "User Information" -MailToAttr Mail -WhatIf -Confirm:$false
+
+# Prepare the User-List as template parameter for template without loop
+$userArrayWithParams = $userArray | ForEach-Object {
+    $userParam = $_ | ConvertTo-PSFHashtable
+    $userParam.UserListMD= ($userParam.userList | Invoke-MForgeTemplate -TemplateString "- UPN: þUPNþ in þDomainþ" -TemplateType TXT -JoinResults)
+    $userParam
+}
+$userArrayWithParams | Send-MForgeMassMail -TemplateFile .\UserMailTemplate-WithOutLoop.md -Subject "User Information" -MailToAttr Mail -WhatIf -Confirm:$false
+```
+
+Templates used:
+
+**UserMailTemplate-WithLoop.md**
+```markdown
+# Hello þFirstNameþ þLastNameþ,
+
+Below you will find a list of your accounts grouped by domain:
+
+---
+
+## Accounts by Domain
+þ{
+    foreach($user in $Parameters.UserList){ 
+    "### Domain: $($User.Domain)","- UPN: $($User.UPN)","`n"|Join-String -Separator "`n"
+    }
+}þ
+
+Best regards,
+Your IT Team
+```
+
+**UserMailTemplate-WithOutLoop.md**
+```markdown
+# Hello þFirstNameþ þLastNameþ,
+
+Below you will find a list of your accounts grouped by domain:
+
+---
+
+## Accounts by Domain
+þUserListMDþ
+
+Best regards,
+Your IT Team
+```

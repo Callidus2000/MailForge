@@ -157,10 +157,10 @@
         if ([string]::IsNullOrEmpty($TemplateData)) {
             Stop-PSFFunction -Level Warning -Message "No data found" -EnableException $true
         }
-        if (-not $PSBoundParameters.ContainsKey('SubjectAttr') -and $SubjectAttr -and -not $TemplateData[0].$SubjectAttr) {
+        if (-not $PSBoundParameters.ContainsKey('Subject') -and $SubjectAttr -and -not $TemplateData[0].$SubjectAttr) {
             Stop-PSFFunction -Level Warning -Message "SubjectAttr '$SubjectAttr' not found in data, please check your input." -EnableException $true
         }
-        if (-not $PSBoundParameters.ContainsKey('MailToAttr') -and $MailToAttr -and -not $TemplateData[0].$MailToAttr) {
+        if (-not $PSBoundParameters.ContainsKey('RecipientList') -and $MailToAttr -and -not $TemplateData[0].$MailToAttr) {
             Stop-PSFFunction -Level Warning -Message "MailToAttr '$MailToAttr' not found in data, please check your input." -EnableException $true
         }
         if ($MailToOverride) {

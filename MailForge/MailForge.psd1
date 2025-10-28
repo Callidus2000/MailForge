@@ -3,7 +3,7 @@
 	RootModule = 'MailForge.psm1'
 
 	# Version number of this module.
-	ModuleVersion = '1.0.0'
+	ModuleVersion = '2.0.0'
 
 	# ID used to uniquely identify this module
 	GUID = '503678cb-acac-464d-bd61-9e7ac9c29834'
@@ -49,7 +49,6 @@
 		'Register-MForgeTemplate'
 		'Remove-MForgeTemplate'
 		'Send-MForgeMail'
-		'Send-MForgeMassMail'
 	)
 
 	# Cmdlets to export from this module

@@ -1,4 +1,6 @@
 ﻿# Changelog
+## 2.0.0 (to Be released)
+ - Breaking Change: Renamed Send-MForgeMail to Send-MForgeSingleMail, moved it to internal functions, Renamed Send-MForgeMassMail to Send-MForgeMail
 ## 1.1.0 (2025-10-24)
  - Breaking Change: The parameters `MailToColumn` and `SubjectColumn` have been renamed to `MailToAttr` and `SubjectAttr` and now have default values 'MailTo' and 'Subject'.
 	 If the parameters `RecipientList` or `Subject` are provided, they override the values from the data.

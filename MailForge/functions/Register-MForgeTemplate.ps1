@@ -66,7 +66,7 @@
         $tempFile = [System.IO.Path]::GetTempFileName()
         Write-PSFMessage "Creating temporary file $tempFile for template string"
         $TemplateFile = $tempFile
-        Set-Content -Path $tempFile -Value $TemplateString -Encoding UTF8
+        Set-Content -Path $tempFile -Value $TemplateString -Encoding UTF8 -WhatIf:$false
     }
     $fileObj = Get-Item -Path $TemplateFile
     if ($TemplateString) {
@@ -90,6 +90,6 @@
     # }
     if ($TemplateString) {
         Write-PSFMessage "Cleaning up temporary file $tempFile"
-        remove-item -Path $tempFile -ErrorAction SilentlyContinue
+        remove-item -Path $tempFile -ErrorAction SilentlyContinue  -WhatIf:$false
     }
 }

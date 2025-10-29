@@ -169,6 +169,11 @@
             $singleMailParams.RecipientList = $MailToOverride
         }
         $TemplateData = $TemplateData | ConvertTo-PSFHashtable
+        # Check if Subject is provided from parameter and contains the Placeholder delimiter
+        if ($PSBoundParameters.ContainsKey('Subject') -and $Subject -like "*þ*") {
+            $subjectTemplateName= Register-MForgeTemplate -TemplateString $Subject -TemplateType 'TXT' -Temporary
+        }
+
         $mailData = $TemplateData | ForEach-Object {
             $param = $singleMailParams.Clone()
             if (-not $MailToOverride) {
@@ -176,7 +181,13 @@
             }
             # Subject from parameter overrides data, otherwise use data
             if ($PSBoundParameters.ContainsKey('Subject')) {
-                $param.Subject = $Subject
+                if ($subjectTemplateName) {
+                    Write-PSFMessage "Generating subject from template $subjectTemplateName"
+                    $param.Subject = Invoke-MForgeTemplate -TemplateName $subjectTemplateName -TemplateParameters $_
+                }
+                else {
+                    $param.Subject = $Subject
+                }
             }
             elseif ($_.ContainsKey($SubjectAttr)) {
                 $param.Subject = $_.$SubjectAttr
@@ -197,6 +208,10 @@
         if ($PSBoundParameters.ContainsKey('TemplateFile')) {
             Write-PSFMessage "Removing temporary template $templateName"
             Remove-PSMDTemplate -TemplateName $TemplateName -Confirm:$false -ErrorAction SilentlyContinue
+        }
+        if($subjectTemplateName) {
+            Write-PSFMessage "Removing temporary subject template $subjectTemplateName"
+            Remove-PSMDTemplate -TemplateName $subjectTemplateName -Confirm:$false -ErrorAction SilentlyContinue
         }
     }
 }

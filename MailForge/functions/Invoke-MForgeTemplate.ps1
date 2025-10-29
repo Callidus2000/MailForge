@@ -45,7 +45,7 @@
     process {
         foreach ($Parameters in $TemplateParameters) {
             Write-PSFMessage "Invoking template $TemplateName with parameters: $($Parameters|ConvertTo-Json -Compress)"
-            $templateResults = Invoke-PSMDTemplate -TemplateName $TemplateName -Parameters ($Parameters | ConvertTo-PSFHashtable) -GenerateObjects
+            $templateResults = Invoke-PSMDTemplate -TemplateName $TemplateName -Parameters ($Parameters | ConvertTo-PSFHashtable) -GenerateObjects -Verbose
             # $content = $templateResults | Select-Object -First 1 -ExpandProperty Content
             $content = ($templateResults | Select-Object -First 1 -ExpandProperty Content).TrimEnd("`r", "`n")
             Write-PSFMessage "Template result content: #$content#"

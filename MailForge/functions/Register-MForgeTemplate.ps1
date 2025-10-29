@@ -59,7 +59,6 @@
         [string]$Version = "1.0.0",
         [Parameter(Mandatory = $true, ParameterSetName = 'TemporaryByString')]
         [Parameter(Mandatory = $true, ParameterSetName = 'ByNameAndString')]
-        [Parameter(Mandatory = $true, ParameterSetName = 'TemporaryByString')]
         [Parameter(Mandatory = $false, ParameterSetName = 'TemporaryByFile')]
         [Parameter(Mandatory = $false, ParameterSetName = 'ByNameAndFile')]
         [ValidateSet("TXT", "HTML", "MD")]

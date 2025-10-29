@@ -94,7 +94,7 @@
         # [Parameter(Mandatory = $true, ParameterSetName = 'ByName')]
         [string]$TemplateName,
         # [Parameter(Mandatory = $true, ParameterSetName = 'ByFile')]
-        [string]$TemplateFile,
+        [PSFFile]$TemplateFile,
 
         # Data input from Excel
         [Parameter(ParameterSetName = 'dataFromExcel', Mandatory = $true)]

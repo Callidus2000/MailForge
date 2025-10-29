@@ -48,7 +48,7 @@
 
         # ParameterSet ByFile
         [Parameter(Mandatory = $true, ParameterSetName = 'ByFile')]
-        [string]$TemplateFile,
+        [PSFFile]$TemplateFile,
         # ParameterSet ByString
         [Parameter(Mandatory = $true, ParameterSetName = 'ByString')]
         [string]$TemplateString

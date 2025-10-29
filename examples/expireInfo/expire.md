@@ -1,12 +1,12 @@
-﻿Hallo þGivenNameþ þSurnameþ,
+﻿Hello þGivenNameþ þSurnameþ,
 
-Ihr Benutzerkonto (**þSamAccountNameþ**) läuft am **þExpireDateþ** ab.
+Your user account (**þSamAccountNameþ**) will expire on **þExpireDateþ**.
 
-Das bedeutet, dass Ihr Kennwort in **þDaysToExpireþ** Tagen erneuert werden muss.
+This means your password must be changed in **þDaysToExpireþ** days.
 
-Bitte stellen Sie sicher, dass Sie Ihr Kennwort rechtzeitig ändern, um einen unterbrechungsfreien Zugriff zu gewährleisten.
+Please make sure to change your password in time to ensure uninterrupted access.
 
-Bei Fragen wenden Sie sich bitte an den IT-Support.
+If you have any questions, please contact IT support.
 
-Viele Grüße  
-Ihr IT-Team
+Best regards  
+Your IT Team

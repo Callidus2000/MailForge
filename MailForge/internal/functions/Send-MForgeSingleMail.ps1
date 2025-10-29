@@ -102,7 +102,7 @@
         return
     }
     $templateResults=Invoke-mforgeTemplate -TemplateName $TemplateName -TemplateParameters $TemplateParameters
-    # $templateResults = Invoke-PSMDTemplate -TemplateName $TemplateName -Parameters $TemplateParameters -GenerateObjects -verbose
+    # $templateResults = Invoke-PSMDTemplate -TemplateName $TemplateName -Parameters $TemplateParameters -GenerateObjects
 
     switch -Regex (($template).Tags | Join-String -Separator ',') {
         'MD' {

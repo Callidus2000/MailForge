@@ -28,9 +28,9 @@ $userArray=@"
 "@ |ConvertFrom-Json
 
 # Output result
-$userArray | Send-MForgeMassMail -TemplateFile $PSScriptRoot\UserMailTemplate-WithLoop.md -Subject "User Information" -MailToAttr Mail -WhatIf -Confirm:$false
+$userArray | Send-MForgeMail -TemplateFile $PSScriptRoot\UserMailTemplate-WithLoop.md -Subject "User Information" -MailToAttr Mail -WhatIf -Confirm:$false
 # Output result without sending mails:
-# [Send-MForgeMail] RecipientList=user1@example.com
+# [Send-MForgeSingleMail] RecipientList=user1@example.com
 # Subject=User Information
 # HtmlBody=<h1 id="hello-user1-lastname1">Hello User1 Lastname1,</h1>
 # <p>Below you will find a list of your accounts grouped by domain:</p>
@@ -54,7 +54,7 @@ $userArrayWithParams = $userArray | ForEach-Object {
     $userParam.UserListMD= ($userParam.userList | Invoke-MForgeTemplate -TemplateString "- UPN: þUPNþ in þDomainþ" -TemplateType TXT -JoinResults)
     $userParam
 }
-$userArrayWithParams | Send-MForgeMassMail -TemplateFile $PSScriptRoot\UserMailTemplate-WithOutLoop.md -Subject "User Information" -MailToAttr Mail -WhatIf -Confirm:$false
+$userArrayWithParams | Send-MForgeMail -TemplateFile $PSScriptRoot\UserMailTemplate-WithOutLoop.md -Subject "User Information" -MailToAttr Mail -WhatIf -Confirm:$false
 
 
 # Results in:

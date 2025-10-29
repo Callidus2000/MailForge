@@ -143,8 +143,8 @@
         $rawData += $InputData
     }
     end {
-        $TemplateData = $rawData | Where-Object $Filter | Select-Object @SelectParam
-        Write-PSFMessage "Data imported, $($TemplateData.Count) entries after filtering original $($rawData.Count)"
+        $TemplateData = [array]($rawData | Where-Object $Filter | Select-Object @SelectParam)
+        Write-PSFMessage "Data imported, $(($templateData|Measure-Object).Count) entries after filtering original $($rawData.Count)"
         $uniqueRecipients = ($TemplateData | Select-Object -ExpandProperty $MailToAttr -ErrorAction SilentlyContinue | Measure-Object).count
         if ($RecipientList) {
             Write-PSFMessage -Level Host -Message "RecipientList parameter is set, ignoring MailToAttr and sending $($TemplateData.Count) mails to $($RecipientList.Count) recipients"

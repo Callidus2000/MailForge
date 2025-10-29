@@ -1,4 +1,41 @@
 ﻿function  Invoke-MForgeTemplate {
+    <#
+    .SYNOPSIS
+    Executes a MailForge template with the specified parameters.
+
+    .DESCRIPTION
+    This function allows you to execute a MailForge template by name, file, or string.
+    The parameters are passed to the template and the result is returned. Supports
+    different parameter sets for flexible usage.
+
+    .PARAMETER TemplateParameters
+    Hashtable with parameters to pass to the template.
+
+    .PARAMETER TemplateName
+    Name of the template to execute (ParameterSet 'ByName').
+
+    .PARAMETER TemplateFile
+    Path to the template file (ParameterSet 'ByFile').
+
+    .PARAMETER TemplateString
+    Template content as string (ParameterSet 'ByString').
+
+    .EXAMPLE
+    Invoke-MForgeTemplate -TemplateName "WelcomeMail" -TemplateParameters $params
+
+    # Executes the template named "WelcomeMail" with the given parameters.
+
+    .EXAMPLE
+    Invoke-MForgeTemplate -TemplateFile "template.ps1" -TemplateParameters $params
+
+    # Executes the template from the file "template.ps1" with the given parameters.
+
+    .EXAMPLE
+    Invoke-MForgeTemplate -TemplateString $content -TemplateParameters $params
+
+    # Executes the template from the string variable $content with the given parameters.
+
+    #>
     [CmdletBinding()]
     param (
         # Mandatory parameters

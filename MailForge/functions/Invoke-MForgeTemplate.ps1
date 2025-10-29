@@ -14,24 +14,17 @@
         [string]$TemplateFile,
         # ParameterSet ByString
         [Parameter(Mandatory = $true, ParameterSetName = 'ByString')]
-        [string]$TemplateString,
-        [Parameter(Mandatory = $true, ParameterSetName = 'ByString')]
-        [ValidateSet("TXT", "HTML", "MD")]
-        [string]$TemplateType = "TXT",
-        [switch]$JoinResults
-
+        [string]$TemplateString
     )
 
     begin {
         if ($PSCmdlet.ParameterSetName -ne 'ByName') {
-            $registerParam = $PSBoundParameters | convertto-psfhashtable -Include 'TemplateString', 'TemplateFile', 'TemplateType'
+            $registerParam = $PSBoundParameters | convertto-psfhashtable -Include 'TemplateString', 'TemplateFile'
+            $registerParam.TemplateType = 'TXT'
             Write-PSFMessage "Registering temporary template with parameters: $($registerParam|ConvertTo-Json -Compress)"
             # $templateName = Register-MForgeTemplate -TemplateFile $TemplateFile -Temporary
             $templateName = Register-MForgeTemplate @registerParam -Temporary
         }
-        # if ($PSCmdlet.ParameterSetName -eq 'ByFile') {
-        #     $templateName = Register-MForgeTemplate -TemplateFile $TemplateFile -Temporary
-        # }
         $template = Get-PSMDTemplate $TemplateName
         if (-not $template) {
             Stop-PSFFunction -Level Warning -Message "Template $TemplateName not found"
@@ -55,27 +48,14 @@
             }
             $content
         }
-        # $templateResults = Invoke-PSMDTemplate -TemplateName $TemplateName -Parameters $TemplateParameters -GenerateObjects
-        # $templateResults
 
-        # switch -Regex (($template).Tags | Join-String -Separator ',') {
-        #     'MD' {
-        #         Write-PSFMessage "Konvertiere MarkDown nach HTML"
-        #         $mdContent = $templateResults | Select-Object -First 1 -ExpandProperty Content
-        #         $sendMailParams.HtmlBody = ($mdContent | ConvertFrom-Markdown).Html
-        #     }
-        #     'HTML' {
-        #         Write-PSFMessage "Erzeuge HTML aus dem Template"
-        #         $sendMailParams.HtmlBody = $templateResults | Select-Object -First 1 -ExpandProperty Content
-        #     }
-        # }
     }
 
     end {
         if ($JoinResults) {
             $allContent -join "`n"
         }
-        if ($PSCmdlet.ParameterSetName -eq 'ByFile') {
+        if ($PSCmdlet.ParameterSetName -ne 'ByName') {
             Write-PSFMessage "Removing temporary template $TemplateName."
             Remove-PSMDTemplate -TemplateName $TemplateName -Confirm:$false -ErrorAction SilentlyContinue
         }

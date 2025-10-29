@@ -27,6 +27,7 @@
 
 
     [CmdletBinding(DefaultParameterSetName = 'ByName')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessforStateChangingFunctions', '')]
     param (
         [Parameter(ParameterSetName = 'ByName', Mandatory = $true)]
         [PsfArgumentCompleter('MForgeTemplateNames')]
@@ -35,17 +36,15 @@
         [Parameter(ParameterSetName = 'Orphan', Mandatory = $true)]
         [switch]$Orphan
     )
-    switch ($PSCmdlet.ParameterSetName) {
-        'Orphan' {
-            Get-PSMDTemplate -ErrorAction SilentlyContinue | Where-Object {
-                $_.Tags -contains 'TemporaryMForgeTemplate'
-            } | ForEach-Object {
-                Write-PSFMessage "Removing orphaned temporary template $($_.Name)" -Level Host
-                Remove-PSMDTemplate -TemplateName $_.Name -Confirm:$false -ErrorAction SilentlyContinue
-            }
+    if ($Orphan) {
+        Get-PSMDTemplate -ErrorAction SilentlyContinue | Where-Object {
+            $_.Tags -contains 'TemporaryMForgeTemplate'
+        } | ForEach-Object {
+            Write-PSFMessage "Removing orphaned temporary template $($_.Name)" -Level Host
+            Remove-PSMDTemplate -TemplateName $_.Name -Confirm:$false -ErrorAction SilentlyContinue
         }
-        'ByName' {
-            Remove-PSMDTemplate -TemplateName $TemplateName
-        }
+    }
+    else {
+        Remove-PSMDTemplate -TemplateName $TemplateName
     }
 }

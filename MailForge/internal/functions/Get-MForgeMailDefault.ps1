@@ -17,6 +17,7 @@
     Returns a hashtable with all configured mail parameters.
     #>
     [CmdletBinding()]
+    [OutputType([hashtable])]
     param (
         $CurrentPSBoundParameters
     )
@@ -36,7 +37,7 @@
     $overRideParams = $CurrentPSBoundParameters | ConvertTo-PSFHashtable -Include $configurableParams
     foreach ($param in $configurableParams) {
         $default = (Get-PSFConfigValue -FullName "MailForge.MailKitDefaults.$param" -ErrorAction SilentlyContinue)
-        if ($default -ne $null) {
+        if ($null -ne $default) {
             $result[$param] = $default
         }
     }

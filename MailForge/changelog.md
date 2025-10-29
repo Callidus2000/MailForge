@@ -1,4 +1,10 @@
 ﻿# Changelog
+## 2.0.1 (2025-10-29)
+ - Documentation: Help comments for Invoke-MForgeTemplate improved and translated to English.
+ - Examples in Invoke-MForgeTemplate help block now include explanations and blank lines.
+ - Fixed: Mandatory parameter 'TemplateType' no longer has a default value in Invoke-MForgeTemplate.
+ - Internal: Preparations for further PSScriptAnalyzer compliance and refactoring.
+ - Enhancement: TemplateFile parameters now strictly check if the file exists before execution.
 ## 2.0.0 (2025-10-29)
  - Breaking Change: Renamed Send-MForgeMail to Send-MForgeSingleMail, moved it to internal functions.
  - Breaking Change: Renamed Send-MForgeMassMail to Send-MForgeMail.

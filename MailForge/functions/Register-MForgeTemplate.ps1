@@ -41,6 +41,7 @@
     Registers the template from string content as 'MyTemplate' in the default store with type 'String'.
     #>
     [CmdletBinding()]
+    [OutputType([string])]
     param (
         [Parameter(Mandatory = $true, ParameterSetName = 'ByNameAndFile')]
         [Parameter(Mandatory = $true, ParameterSetName = 'TemporaryByFile')]
@@ -50,17 +51,18 @@
         [string]$TemplateString,
         [Parameter(Mandatory = $true, ParameterSetName = 'ByNameAndString')]
         [Parameter(Mandatory = $true, ParameterSetName = 'ByNameAndFile')]
-        [Parameter(Mandatory = $true, ParameterSetName = 'ByName')]
         [string]$TemplateName,
         [Parameter(Mandatory = $true, ParameterSetName = 'TemporaryByString')]
         [Parameter(Mandatory = $true, ParameterSetName = 'TemporaryByFile')]
         [switch]$Temporary,
         $OutStore = "Default",
         [string]$Version = "1.0.0",
-        [Parameter(Mandatory = $true, ParameterSetName = 'ByNameAndString')]
         [Parameter(Mandatory = $true, ParameterSetName = 'TemporaryByString')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'ByNameAndString')]
+        [Parameter(Mandatory = $false, ParameterSetName = 'TemporaryByFile')]
+        [Parameter(Mandatory = $false, ParameterSetName = 'ByNameAndFile')]
         [ValidateSet("TXT", "HTML", "MD")]
-        [string]$TemplateType = "TXT"
+        [string]$TemplateType
     )
     if ($TemplateString) {
         $tempFile = [System.IO.Path]::GetTempFileName()

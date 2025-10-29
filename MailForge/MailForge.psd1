@@ -3,7 +3,7 @@
 	RootModule = 'MailForge.psm1'
 
 	# Version number of this module.
-	ModuleVersion = '2.0.0'
+	ModuleVersion = '2.0.1'
 
 	# ID used to uniquely identify this module
 	GUID = '503678cb-acac-464d-bd61-9e7ac9c29834'
@@ -85,7 +85,32 @@
 			# IconUri = ''
 
 			# ReleaseNotes of this module
-			ReleaseNotes = 'Initial release: MailForge provides PowerShell cmdlets for email automation, template management, and mass mailing with Excel integration.'
+						ReleaseNotes = @'
+v2.0.1 (2025-10-29)
+ - Help comments for Invoke-MForgeTemplate improved and translated to English.
+ - Examples in Invoke-MForgeTemplate help block now include explanations and blank lines.
+ - Mandatory parameter "TemplateType" no longer has a default value in Invoke-MForgeTemplate.
+ - TemplateFile parameters now strictly check if the file exists before execution.
+ - Internal preparations for further PSScriptAnalyzer compliance and refactoring.
+
+v2.0.0 (2025-10-29)
+ - Breaking Change: Renamed Send-MForgeMail to Send-MForgeSingleMail, moved it to internal functions.
+ - Breaking Change: Renamed Send-MForgeMassMail to Send-MForgeMail.
+ - Subject parameter now supports template strings with placeholders (þ...þ), resolved per mail.
+ - Improved error handling for missing Subject or Recipient (Test-MForgeParameter).
+ - Enhanced pipeline and parameter handling for mass mail scenarios.
+ - Documentation and comments translated to English.
+ - Various bugfixes and refactoring for consistency.
+
+v1.1.0 (2025-10-24)
+ - Breaking Change: The parameters `MailToColumn` and `SubjectColumn` have been renamed to `MailToAttr` and `SubjectAttr` and now have default values 'MailTo' and 'Subject'.
+	 If the parameters `RecipientList` or `Subject` are provided, they override the values from the data.
+	 Note: This breaking change does not lead to v2, as the module is still very new.
+ - Enhancement: Mass mail data can now also be provided directly via parameter or pipeline, not only via Excel.
+
+v1.0.0 (2025-10-16)
+ - Initial Release
+'@
 
 		} # End of PSData hashtable
 

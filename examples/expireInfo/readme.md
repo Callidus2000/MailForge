@@ -1,42 +1,6 @@
-﻿<!-- PROJECT SHIELDS -->
-[![Contributors](https://img.shields.io/github/contributors/Callidus2000/MailForge.svg?style=for-the-badge)](https://github.com/Callidus2000/MailForge/graphs/contributors)
-[![Forks](https://img.shields.io/github/forks/Callidus2000/MailForge.svg?style=for-the-badge)](https://github.com/Callidus2000/MailForge/network/members)
-[![Stargazers](https://img.shields.io/github/stars/Callidus2000/MailForge.svg?style=for-the-badge)](https://github.com/Callidus2000/MailForge/stargazers)
-[![Issues](https://img.shields.io/github/issues/Callidus2000/MailForge.svg?style=for-the-badge)](https://github.com/Callidus2000/MailForge/issues)
-[![GPLv3 License](https://img.shields.io/github/license/Callidus2000/MailForge.svg?style=for-the-badge)](https://github.com/Callidus2000/MailForge/blob/master/LICENSE)
+﻿The module helps you send emails based on a template.
 
-# MailForge PowerShell Module
-
-MailForge is a PowerShell module for automating, templating, and sending emails in enterprise environments. It provides advanced features for mass mailing, template management, and integration with modern mail systems, making it ideal for IT automation, notifications, and bulk communications.
-
-## Features
-
-- **Send-MForgeSingleMail:** Send individual or bulk emails using registered or file-based templates, with dynamic parameters.
-- **Register-MForgeTemplate:** Create and manage reusable mail templates for consistent communication.
-- **Send-MForgeMail:** Efficiently send mass mailings to large recipient lists with template support.
-- **Template Orphan Removal:** Clean up unused or orphaned templates to keep your environment tidy.
-- **Default Configuration:** Easily set up default mail settings for streamlined operations.
-- **PSFramework Integration:** Leverage robust logging, configuration, and pipeline support.
-- **Modern SMTP Support:** Uses Send-MailKitMessage for secure, standards-compliant mail delivery.
-
-## Installation
-
-```powershell
-# Install the MailForge module from the PowerShell Gallery
-Install-Module -Name MailForge -Scope CurrentUser
-```
-
-## Usage
-
-**Important:**  
-Never use MailForge to send sensitive information unless your mail infrastructure is secure. Always follow your organization's security policies.
-
-
-### Example: Sending Password Expiry Notification
-
-The module helps you send emails based on a template.
-
-Suppose you want to notify users when their password is about to expire. The user information might look like this:
+Suppose you want to send users an email with information about when their user password will expire. The information for a user might look like this:
 
 ```json
 {
@@ -49,7 +13,7 @@ Suppose you want to notify users when their password is about to expire. The use
 }
 ```
 
-A simple Markdown template could look like this:
+To keep the template simple, create the following Markdown file:
 ```markdown
 Hello þGivenNameþ þSurnameþ,
 
@@ -93,8 +57,7 @@ HtmlBody=<p>Hello Max Mustermann,</p>
 Your IT Team</p>
 ```
 
-You can simplify this further by registering default parameters once:
-
+This can be greatly simplified. The standard parameters can be registered once so that they are automatically used:
 ```powershell
 Initialize-MForgeMailDefault -SMTPServer smtp.example.com -Port 25 -From "it-department@example.com"
 
@@ -102,8 +65,7 @@ Initialize-MForgeMailDefault -SMTPServer smtp.example.com -Port 25 -From "it-dep
 Send-MForgeMail -WhatIf -TemplateFile .\expire.md -InputData $templateData -RecipientList $templateData.EmailAddress -Subject "Information about your user"
 ```
 
-If you prepare the template data accordingly, the function call becomes even shorter:
-
+If you further prepare the template data, the function call becomes even shorter:
 ```powershell
 $templateData = @{
     GivenName      = "Max"
@@ -118,7 +80,7 @@ $templateData = @{
 Send-MForgeMail -WhatIf -TemplateFile .\expire.md -InputData $templateData
 ```
 
-If the template is used frequently, you can register it and refer to it by a logical name. Input data can also be passed via pipeline:
+If the template is used more frequently, you can register it and refer to it by a logical name. The input data can also be passed via pipeline:
 
 ```powershell
 Register-MForgeTemplate -TemplateName "ExpireInfoMail" -TemplateFile .\expire.md
@@ -137,6 +99,7 @@ $users = Get-ADUser -Filter { EmailAddress -like "*" } -Properties EmailAddress,
         @{ Name = 'Subject'; Expression = { "Password expiry info for user $($_.SamAccountName)" } }
 
 # Only send mails to users whose password expires in 10 or 5 days
+# Create filter:
 $filter = { $_.DaysToExpire -in @(5,10) }
 
 $sendMailParam = @{
@@ -153,22 +116,3 @@ Send-MForgeMail @sendMailParam -Limit 2 -RecipientList "devops@example.org"
 # When everything is correct: send all mails
 Send-MForgeMail @sendMailParam
 ```
-
-### Example: Sending Emails Based on an Excel File
-If the data required for sending is already available in an Excel file, you can use it directly as input:
-```powershell
-Send-MForgeMail -DataFile .\myData.xlsx -WorksheetName "userData" -Filter $Filter
-```
-
-
-## License
-
-Distributed under the GNU GENERAL PUBLIC LICENSE version 3. See `LICENSE` for details.
-
-## Contact
-
-Project Link: [https://github.com/Callidus2000/MailForge](https://github.com/Callidus2000/MailForge)
-
-## Acknowledgements
-
-- [Friedrich Weinmann](https://github.com/FriedrichWeinmann) for [PSFramework](https://github.com/PowershellFrameworkCollective/psframework) and [PSModuleDevelopment](https://github.com/PowershellFrameworkCollective/PSModuleDevelopment)

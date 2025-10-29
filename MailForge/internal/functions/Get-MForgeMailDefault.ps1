@@ -44,7 +44,7 @@
     if ($overRideParams) {
         Write-PSFMessage "Override Params from Call: $($overRideParams | ConvertTo-Json -Compress)"
         foreach ($param in $configurableParams) {
-            if ($overRideParams.ContainsKey($param)) {
+            if ($overRideParams.ContainsKey($param) -and -not [string]::IsNullOrEmpty($overRideParams[$param])) {
                 $result[$param] = $overRideParams[$param]
             }
         }

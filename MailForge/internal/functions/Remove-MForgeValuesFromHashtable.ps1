@@ -63,9 +63,6 @@
     }
 
     process {
-    }
-
-    end {
         if ($NullHandler -eq "Keep") {
             Write-PSFMessage "Returning inputObject unchanged" -Level $logLevel
             return $InputObject
@@ -110,5 +107,8 @@
             }
         }
         return $InputObject
+    }
+
+    end {
     }
 }

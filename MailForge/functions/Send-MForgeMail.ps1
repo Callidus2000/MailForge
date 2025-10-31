@@ -121,6 +121,9 @@
             $templateName = Register-MForgeTemplate -TemplateFile $TemplateFile -Temporary
             $singleMailParams.TemplateName = $templateName
         }
+        if (-not $TemplateName){
+            Stop-PSFFunction -Level Warning -Message "TemplateName is required either via -TemplateName or -TemplateFile" -EnableException $true
+        }
         $rawData = @()
         if ($PSBoundParameters.ContainsKey('DataFile') -and $PSBoundParameters.ContainsKey('WorksheetName')) {
             $rawData = Import-Excel -Path $DataFile -WorksheetName $WorksheetName
@@ -176,6 +179,7 @@
         $ConfirmMessage = "Sending $($TemplateData.Count) mails to $($uniqueRecipients.Count) recipients"
 
         Write-PSFMessage "Data imported, $(($templateData|Measure-Object).Count) entries after filtering original $($rawData.Count)"
+        Save-ContextCache -Name "murks" -CurrentVariables (Get-Variable -Scope local)
         if ([string]::IsNullOrEmpty($TemplateData)) {
             Stop-PSFFunction -Level Warning -Message "No data found" -EnableException $true
         }

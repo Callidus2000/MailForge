@@ -1,4 +1,25 @@
 ﻿# Changelog
+## 2.1.1 (2025-10-30)
+ - Enhancement: Improved error handling for missing or invalid ParameterMapping.
+ - Enhancement: Added support for dynamic attribute mapping in Send-MForgeMail.
+ - Documentation: Updated help blocks for Send-MForgeMail to clarify InputData and mapping usage.
+ - Internal: Refactored pipeline handling for InputData and empty values.
+ - Internal: Minor bugfixes and code cleanup.
+
+## 2.1.0 (2025-10-30)
+ - Enhancement: Send-MForgeMail now supports flexible mapping of mail parameters via ParameterMapping.
+ - Enhancement: Pipeline input for InputData is now fully supported.
+ - Documentation: Help comments and examples updated for new mapping logic.
+ - Internal: Improved Select-PSFObject usage for dynamic parameter selection.
+
+## 2.0.2 (2025-10-29)
+ - Enhancement: Added generic ParameterMapping hashtable for flexible attribute mapping.
+ - Enhancement: Input data can now be provided via InputData parameter or pipeline, not only Excel.
+ - Documentation: Help block and comments updated to clarify InputData and ParameterMapping usage.
+ - Documentation: WhatIf notes retained in help block.
+ - Internal: Default mapping for From, RecipientList, CCList, BCCList, Subject now configurable via ParameterMapping.
+ - Internal: German comments and messages translated to English.
+ - Internal: Improved example blocks in help comments.
 ## 2.0.1 (2025-10-29)
  - Documentation: Help comments for Invoke-MForgeTemplate improved and translated to English.
  - Examples in Invoke-MForgeTemplate help block now include explanations and blank lines.

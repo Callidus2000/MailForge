@@ -199,7 +199,7 @@
             foreach ($mailParam in $TemplateData) {
                 Write-PSFMessage "Sending mail to $($mailParam.RecipientList) with subject '$($mailParam.Subject)'" -FunctionName Send-MForgeMail
                 Write-PSFMessage "Mail Parameters: $($mailParam | ConvertTo-Json -Compress)" -FunctionName Send-MForgeMail
-                Send-MForgeSingleMail @mailParam -WhatIf:$WhatIfPreference -verbose
+                Send-MForgeSingleMail @mailParam -WhatIf:$WhatIfPreference
             }
         } -WhatIf:$false -Confirm:$ConfirmPreference
         if ($PSBoundParameters.ContainsKey('TemplateFile')) {

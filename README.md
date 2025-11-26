@@ -131,7 +131,7 @@ How do you send the mail to hundreds of users? First, you need the data:
 # Query all AD users with an email address and add calculated attributes
 $pwdMaxAge = (Get-ADDefaultDomainPasswordPolicy).MaxPasswordAge
 $users = Get-ADUser -Filter { EmailAddress -like "*" } -Properties EmailAddress, GivenName, Surname, PasswordLastSet, PasswordNeverExpires, SamAccountName |
-    Select-PSFObject "GivenName", "Surname", "SamAccountName", "EmailAddress as MailTo",
+    Select-PSFObject "GivenName", "Surname", "SamAccountName", "EmailAddress as RecipientList",
         @{ Name = 'ExpireDate'; Expression = { ($_.PasswordLastSet + $pwdMaxAge).ToString('yyyy-MM-dd') } },
         @{ Name = 'DaysToExpire'; Expression = { ($_.PasswordLastSet + $pwdMaxAge - (Get-Date)).Days } },
         @{ Name = 'Subject'; Expression = { "Password expiry info for user $($_.SamAccountName)" } }
@@ -147,7 +147,7 @@ $sendMailParam = @{
 
 # Test output of mails to be sent, first 2 entries from user data
 Send-MForgeMail @sendMailParam -Limit 2 -WhatIf
-# Send first 2 mails to your own address for testing (MailTo attribute in data is ignored)
+# Send first 2 mails to your own address for testing (RecipientList attribute in data is ignored)
 Send-MForgeMail @sendMailParam -Limit 2 -RecipientList "devops@example.org"
 
 # When everything is correct: send all mails

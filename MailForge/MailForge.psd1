@@ -3,7 +3,7 @@
 	RootModule = 'MailForge.psm1'
 
 	# Version number of this module.
-	ModuleVersion = '2.0.1'
+	ModuleVersion = '2.1.2'
 
 	# ID used to uniquely identify this module
 	GUID = '503678cb-acac-464d-bd61-9e7ac9c29834'

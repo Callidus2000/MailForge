@@ -176,10 +176,10 @@
     end {
         $TemplateData = [array]($rawData | Where-Object $Filter | Select-PSFObject @rawDataSelectParam | ConvertTo-PSFHashtable | Remove-MForgeValuesFromHashtable)
         $uniqueRecipients = ($TemplateData | Select-Object -ExpandProperty RecipientList -ErrorAction SilentlyContinue -Unique | Measure-Object).count
-        $ConfirmMessage = "Sending $($TemplateData.Count) mails to $($uniqueRecipients.Count) recipients"
+        $ConfirmMessage = "Sending $($TemplateData.Count) mails to $($uniqueRecipients) recipients"
 
         Write-PSFMessage "Data imported, $(($templateData|Measure-Object).Count) entries after filtering original $($rawData.Count)"
-        Save-ContextCache -Name "murks" -CurrentVariables (Get-Variable -Scope local)
+        # Save-ContextCache -Name "murks" -CurrentVariables (Get-Variable -Scope local)
         if ([string]::IsNullOrEmpty($TemplateData)) {
             Stop-PSFFunction -Level Warning -Message "No data found" -EnableException $true
         }

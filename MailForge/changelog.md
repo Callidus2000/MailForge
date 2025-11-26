@@ -1,4 +1,9 @@
 ﻿# Changelog
+## 2.1.2 (2025-11-26)
+ - Chore: Update ModuleVersion from '2.1.1' to '2.1.2' in MailForge.psd1.
+ - Fix: Confirmation message in Send-MForgeMail now displays unique recipient count correctly.
+ - Internal: Save-ContextCache line commented out in Send-MForgeMail for clarity.
+
 ## 2.1.1 (2025-10-30)
  - Enhancement: Improved error handling for missing or invalid ParameterMapping.
  - Enhancement: Added support for dynamic attribute mapping in Send-MForgeMail.
